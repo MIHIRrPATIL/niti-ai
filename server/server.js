@@ -8,13 +8,31 @@ require("dotenv").config()
 // CORS configuration - allow frontend to communicate with backend
 const allowedOrigins = [
     "http://localhost:3000",
-    "https://singularity-skill-sphere-hacksync.vercel.app",
     "http://localhost:3001",
+    "https://*.vercel.app",
+    "https://*.onrender.com",
     process.env.FRONTEND_URL
-].filter((origin, index, self) => origin && self.indexOf(origin) === index);
+].filter(Boolean);
 
 const corsOptions = {
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+        // Allow requests with no origin (mobile apps, Postman, etc.)
+        if (!origin) return callback(null, true);
+
+        const isAllowed = allowedOrigins.some(allowed => {
+            if (allowed.includes('*')) {
+                const pattern = allowed.replace('*', '.*');
+                return new RegExp(`^${pattern}$`).test(origin);
+            }
+            return allowed === origin;
+        });
+
+        if (isAllowed) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true, // Allow cookies to be sent
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
