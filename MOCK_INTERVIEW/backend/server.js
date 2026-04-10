@@ -12,6 +12,7 @@ const server = http.createServer(app);
 const allowedOrigins = [
     "http://localhost:3000",
     "https://*.vercel.app",
+    "https://*.onrender.com",
     process.env.FRONTEND_URL // Add your Vercel domain here
 ].filter(Boolean);
 
